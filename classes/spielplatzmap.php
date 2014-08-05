@@ -110,7 +110,7 @@ include("../config.php");
      while ($row = mysql_fetch_array($query)){
      	  $name=$row['fldname'];
      	  //$name = strtr($name, " ", "&nbsp;");
-        $ds=$ds.$row['fldlat'].",".$row['fldlng'].",http://localhost/jp/joorgportal30/classes/showtab.php?menu=playground,".$name.";";
+        $ds=$ds.$row['fldlat'].",".$row['fldlng'].",showtab.php?menu=playground,".$name.";";
      }	
      $array=chr(34).$ds.chr(34);
      echo "<body onload='initMap(".$array.")' style='margin:0px; border:0px; padding:0px;'>";

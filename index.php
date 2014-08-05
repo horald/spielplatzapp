@@ -24,13 +24,29 @@ function startmenu() {
   include("config.php");
   echo "<legend>Spielplatzapp</legend>";
 
-  echo "<iframe src='classes/showtab.php?menu=playground' name='Fensterlein' width='".$winwidth."' height='".$winheight."' marginheight='0' marginwidth='0' frameborder='0' align='right'>";
+  echo "<table>";
+  echo "<tr><td valign='top'>";
+
+  echo "<ul class='nav nav-pills nav-stacked'>";
+  echo "  <li><a href='classes/welcome.php' target='Fensterlein'>Home</a></li>";
+  echo "  <li><a href='classes/showtab.php?menu=playground' target='Fensterlein'>Spielpl&aumltze</a></li>";
+  echo "  <li><a href='classes/showtab.php?menu=spielgeraet' target='Fensterlein'>Spielger&aumlte</a></li>";
+  echo "  <li><a href='classes/spielplatzmap.php' target='Fensterlein'>Spielplatzmap</a></li>";
+  echo "  <li><a href='classes/getposition.php' target='Fensterlein'>Hole Position</a></li>";
+  echo "</ul>";
+
+  echo "</td>";
+
+  echo "<td>";
+  echo "<iframe src='classes/welcome.php' name='Fensterlein' width='".$winwidth."' height='".$winheight."' marginheight='0' marginwidth='0' frameborder='0' align='right'>";
   echo "  <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen</p>";
   echo "</iframe>";
+  echo "</td></tr>";
+  echo "</table>";
 
-  echo "<a class='btn btn-default' href='classes/showtab.php?menu=playground'  target='Fensterlein'>Spielpl&aumltze</a><br>";
-  echo "<a class='btn btn-default' href='classes/showtab.php?menu=spielgeraet' target='Fensterlein'>Spielger&aumlte</a><br>";
-  echo "<a class='btn btn-default' href='classes/spielplatzmap.php'            target='Fensterlein'>Spielplatzmap  </a>";
+//  echo "<a class='btn btn-default' href='classes/showtab.php?menu=playground'  target='Fensterlein'>Spielpl&aumltze</a><br>";
+//  echo "<a class='btn btn-default' href='classes/showtab.php?menu=spielgeraet' target='Fensterlein'>Spielger&aumlte</a><br>";
+//  echo "<a class='btn btn-default' href='classes/spielplatzmap.php'            target='Fensterlein'>Spielplatzmap  </a>";
 
 }
 

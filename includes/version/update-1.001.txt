@@ -1,0 +1,5 @@
+Version 1.001:
+- Navigation verbessert. Gleichmässige Ränder
+- Willkommens-Meldung eingebaut
+- Über das Menü "Hole Position" kann jetzt über die Adresse die Position geholt und der Datenbank eingefügt werden.
+
