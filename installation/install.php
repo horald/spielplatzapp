@@ -2,14 +2,15 @@
 session_start();
 $sprache = isset($_POST['sprache']) ? $_POST['sprache'] : 'english';
 
-include "language/lang_".$sprache.".php";
+include "../language/lang_".$sprache.".php";
 
 function db_connect() {
 	$conn = mysql_connect($_SESSION['dbhost'], $_SESSION['dbuser'], $_SESSION['dbpass']);
 	return $conn;
 }
 
-$db_file="config.php";
+$db_file="../config.php";
+include("../classes/dbtools.php");
 echo "<table cellpadding=4 cellspacing=4 bgcolor=#DDEEDD width=400 height=300><tr valign=top><td>";
 if (isset($_REQUEST['step'])) {
   echo "<b>Step " . $_REQUEST['step'] . "</b><br>";
@@ -20,6 +21,7 @@ if (isset($_REQUEST['step'])) {
       $_SESSION['dbname'] = $_REQUEST['dbname'];
       $_SESSION['dbuser'] = $_REQUEST['dbuser'];
       $_SESSION['dbpass'] = $_REQUEST['dbpass'];
+      $_SESSION['dbtyp']  = $_REQUEST['dbtyp'];
       echo "verify account: ";
       if (!db_connect()) {
         echo "wrong. Please correct.";
@@ -27,7 +29,8 @@ if (isset($_REQUEST['step'])) {
       }
       echo "OK<br>";
       $file_size = filesize($db_file);
-      if ($file_size != '0' || ((mysql_query("USE ".$_SESSION['dbname'])))) {
+      //if ($file_size != '0' || ((mysql_query("USE ".$_SESSION['dbname'])))) {
+      if ($file_size != '0' || ((db_query("USE ".$_SESSION['dbname'])))) {
         echo "<br>Installation alread complete.<br> Please <a href=uninstall.php>uninstall</a> all.</i>";
         exit();
       }
@@ -37,8 +40,14 @@ if (isset($_REQUEST['step'])) {
       echo "Account for database administrator:<p>";
       echo "<form method=post action=".$_SERVER['PHP_SELF']."?step=1>";
       echo "<tab>"; 
+      echo "<tr><td>Databasetype:</td><td>";
+      echo "<select name='dbtyp' size='1'>";
+      echo "<option>mysql</option>"; 
+      echo "<option>postgres</option>"; 
+      echo "</select>";
+      echo "</td></tr>";
       echo "<tr><td>Host:</td><td><input type=text size=12 name=dbhost value='localhost'></td></tr>";
-      echo "<tr><td>Database:</td><td><input type=text size=12 name=dbname value='dbSpielplatzapp'></td></tr>";
+      echo "<tr><td>Database:</td><td><input type=text size=12 name=dbname value='dbspielplatzapp'></td></tr>";
       echo "<tr><td>User:</td><td><input type=text size=12 name=dbuser value='root'></td></tr>";
       echo "<tr><td>Password:</td><td><input type=password size=12 name=dbpass></td></tr>";
       echo "<tr><td align=right>";
@@ -54,10 +63,14 @@ if (isset($_REQUEST['step'])) {
       $conf = $conf."\$dbuser=\"".$_SESSION['dbuser']."\";\r\n";
       $conf = $conf."\$dbpass=\"".$_SESSION['dbpass']."\";\r\n";         
       $conf = $conf."\$dbname=\"".$_SESSION['dbname']."\";\r\n";
-      $conf = $conf."\$res = mysql_connect(\$dbhost,\$dbuser,\$dbpass) or die(mysql_error());\r\n";
-      $conf = $conf."\$res = mysql_select_db(\$dbname) or die(mysql_error());\r\n";
+      if ($_SESSION['dbtyp']=="mysql") {
+        $conf = $conf."\$res = mysql_connect(\$dbhost,\$dbuser,\$dbpass) or die(mysql_error());\r\n";
+        $conf = $conf."\$res = mysql_select_db(\$dbname) or die(mysql_error());\r\n";
+      } else {
+        $conf = $conf."\$res = pg_connect(host=$dbhost user=$dbuser password=$dbpass) or die(pg_last_error());\r\n";
+      } 
 
-	  $content = "<?php\r\n";
+      $content = "<?php\r\n";
       $content = $content.$conf."?>";         
 
       if (!is_writable($db_file)) {
@@ -76,6 +89,7 @@ if (isset($_REQUEST['step'])) {
         fclose($handle);
       }
 
+      
       $conn = mysql_connect($_SESSION['dbhost'], $_SESSION['dbuser'], $_SESSION['dbpass']) or die('Could not connect: ' . mysql_error());
       $sql = "CREATE Database ".$_SESSION['dbname'];
       $retval = mysql_query( $sql, $conn ) or die('Could not create database: ' . mysql_error());
@@ -85,16 +99,7 @@ if (isset($_REQUEST['step'])) {
       echo "<input type=button value=Next onclick=\"window.location.href='?step=3'\">";
     break;
     case 3:
-	  echo "dbhost:".$_SESSION['dbhost']."<br>";
-//      mysql_connect($_SESSION['dbhost'],$_SESSION['dbuser'],$_SESSION['dbpass']);
-//      if ( mysql_create_db ( $_SESSION['dbname'] ) ) {
-//        echo 'Datenbank ' . $_SESSION['dbname'] . ' wurde erstellt!<br>';
-//      } else {
-//        echo 'Datenbank ' . $_SESSION['dbname'] . ' konnte NICHT erstellt werden!<br>';
-//        echo "<a href='index.php'>Restart</><br>";
-//        echo "<a href='install.php?step=3'>Try again</><br>";
-//        exit;
-//      }    
+      echo "dbhost:".$_SESSION['dbhost']."<br>";
       mysql_connect($_SESSION['dbhost'],$_SESSION['dbuser'],$_SESSION['dbpass']);
       mysql_select_db($_SESSION['dbname']);
       $lines = file('install.sql');
@@ -137,9 +142,6 @@ if (isset($_REQUEST['step'])) {
   }
 } else {
   echo $txtinstall1."<br>";
-//  echo $txtinstall2."<br>";
-//  echo $txtinstall3."<br>";
-//  echo $txtinstall4."<br>";
   echo "</td></tr><tr><td align=right>";
   echo "<input type=button value='".$txtnext."' onclick=\"window.location.href='?step=1'\">";
 }

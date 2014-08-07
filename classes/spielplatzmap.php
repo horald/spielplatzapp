@@ -1,5 +1,6 @@
 <?php
 include("../config.php");
+include("dbtools.php");
 ?>
      <html>
      <head>
@@ -105,9 +106,11 @@ include("../config.php");
      </script>
      </head>
 <?php
-     $query = mysql_query("SELECT * FROM tblmarkers");
+//     $query = mysql_query("SELECT * FROM tblmarkers");
+     $query = db_query("SELECT * FROM tblmarkers"," SELECT-Error");
      $ds="";
-     while ($row = mysql_fetch_array($query)){
+//     while ($row = mysql_fetch_array($query)){
+     while ($row = db_fetch($query)){
      	  $name=$row['fldname'];
      	  //$name = strtr($name, " ", "&nbsp;");
         $ds=$ds.$row['fldlat'].",".$row['fldlng'].",showtab.php?menu=playground,".$name.";";

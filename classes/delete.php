@@ -2,7 +2,8 @@
 $menu=$_GET[menu];
 $menuid=$_GET[menuid];
 $idwert=$_GET[idwert];
-include("../config.php");
+//include("../config.php");
+//include("dbtools.php");
 include("showtabfunc.php");
 include("deletefunc.php");
 include("bootstrapfunc.php");

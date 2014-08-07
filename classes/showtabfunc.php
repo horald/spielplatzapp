@@ -197,9 +197,6 @@ function callshowtab($menu,$strwhere,$iddetail,$idwert,$drucken,$computerid,$use
     } else {
     	getcomputer($computerid);
     } 	
-//  $qrycomp="SELECT * FROM tblcomputer";
-//  $rescomp = mysql_query($qrycomp) or die(mysql_error());
-//  echo "Anzahl-1:".mysql_num_rows ( $rescomp )."<br>"; 
     showtablist($pararray,$listarray,$filterarray,$filter,$menu,$iddetail,$idwert,$drucken,$langshort,$computerid);
   }  
   bootstrapend();
@@ -211,13 +208,12 @@ function showlist() {
 
 function showtablist($pararray,$listarray,$filterarray,$getfilter,$menu,$iddetail,$idwert,$drucken,$langshort,$computerid) {
 include("../config.php");
+//include("dbtools.php");
 
 $korrektur=false;
 $strwhere="";
 $sumwhere="";
 $query="";
-//if ($filter==1) {
-//echo "#".$iddetail."=iddetail<br>";
 
 foreach ( $listarray as $arrelement ) {
   if ($arrelement['type']=='checkbox') {
@@ -226,7 +222,8 @@ foreach ( $listarray as $arrelement ) {
     if ($_GET[addfunc]==1) {
       for ( $x = 0; $x < $count; $x++ ) {
         $qrysel="UPDATE ".$pararray['dbtable']." SET ".$arrelement['dbfield']."='N' WHERE ".$pararray['fldindex']."=".$dbselarr[$x];
-        $ressel = mysql_query($qrysel) or die(mysql_error()." qrysel:".$qrysel);        //echo $qrysel."<br>";
+        $ressel = mysql_query($qrysel) or die(mysql_error()." qrysel:".$qrysel);
+        //echo $qrysel."<br>";
       }  
     }
   	 //echo "checkbox erkannt:".$count."<br>";
@@ -236,7 +233,8 @@ foreach ( $listarray as $arrelement ) {
     	$chk=$_POST['cbutton'.$nr];
     	if ($chk==1) {
     	  $qrysel="UPDATE ".$pararray['dbtable']." SET ".$arrelement['dbfield']."='J' WHERE ".$pararray['fldindex']."=".$dbselarr[$x];
-        $ressel = mysql_query($qrysel) or die(mysql_error()." qrysel:".$qrysel);    	  //echo $qrysel."<br>";
+        $ressel = mysql_query($qrysel) or die(mysql_error()." qrysel:".$qrysel);
+    	  //echo $qrysel."<br>";
     	}  
     	//echo $dbselarr[$x].",".$chk.",".$arrelement['name']."=x<br>";
     }	
@@ -257,8 +255,13 @@ if ($iddetail=="") {
     $sign=$arrelement['sign'];
 
     //$qryflt = "SELECT COUNT(*) as ncount FROM tblfilter WHERE fldfeld='".$dbfield."' AND fldName='".$idwert.$name."' AND fldmaske='SHOWTAB'";
-    $qryflt = "SELECT COUNT(*) as ncount FROM tblfilter WHERE fldfeld='".$dbfield."' AND fldName='".$name."' AND fldmaske='SHOWTAB'";
-    //echo $qryflt."<br>";    $resflt = mysql_query($qryflt) or die(mysql_error()." sql001:".$aryflt);    $linflt = mysql_fetch_array($resflt);    $ncountfilter=$linflt[ncount];
+    $qryflt = "SELECT COUNT(*) as ncount FROM tblfilter WHERE fldfeld='".$dbfield."' AND fldname='".$name."' AND fldmaske='SHOWTAB'";
+    //echo $qryflt."<br>";
+    //$resflt = mysql_query($qryflt) or die(mysql_error()." sql001:".$aryflt);
+    $resflt = db_query($qryflt," sql001:".$aryflt);
+    //$linflt = mysql_fetch_array($resflt);
+    $linflt = db_fetch($resflt);
+    $ncountfilter=$linflt[ncount];
     //echo $ncountfilter."=count<br>";
 
     if ($getfilter==1) {
@@ -270,14 +273,17 @@ if ($iddetail=="") {
         //$qryflt = "UPDATE tblfilter SET fldwert='".$wert."' WHERE fldfeld='".$dbfield."' AND fldName='".$idwert.$name."' AND fldmaske='SHOWTAB'";
         $qryflt = "UPDATE tblfilter SET fldwert='".$wert."' WHERE fldfeld='".$dbfield."' AND fldName='".$name."' AND fldmaske='SHOWTAB'";
       }
-      //echo $qryflt."<br>";      mysql_query($qryflt) or die("Error using mysql_query($sql): ".mysql_error()." sql002:".$qryflt);
+      //echo $qryflt."<br>";
+      mysql_query($qryflt) or die("Error using mysql_query($sql): ".mysql_error()." sql002:".$qryflt);
     } else {
       if ($ncountfilter==0) {
         $wert="";
       } else {
         //$qryflt = "SELECT * FROM tblfilter WHERE fldfeld='".$dbfield."' AND fldName='".$idwert.$name."' AND fldmaske='SHOWTAB'";
         $qryflt = "SELECT * FROM tblfilter WHERE fldfeld='".$dbfield."' AND fldName='".$name."' AND fldmaske='SHOWTAB'";
-        $resflt = mysql_query($qryflt) or die(mysql_error()." sql003:".$qryflt);        $linflt = mysql_fetch_array($resflt);        $wert=$linflt[fldwert];
+        $resflt = mysql_query($qryflt) or die(mysql_error()." sql003:".$qryflt);
+        $linflt = mysql_fetch_array($resflt);
+        $wert=$linflt[fldwert];
       }
     }  
     if ($filterarray[$fltcnt-1][type]=="search") {
@@ -314,7 +320,8 @@ if ($iddetail=="") {
         } 
         $qrysel="SELECT ".$seldbstr." FROM ".$filterarray[$fltcnt-1][dbtable]." WHERE ".$sqlqrywhere.$fldas.$filterarray[$fltcnt-1][seldbindex]."=".$wert;
         //echo $qrysel."=query<br>";
-        $ressel = mysql_query($qrysel) or die(mysql_error()." sql003b:".$qrysel);        $linsel=mysql_fetch_array($ressel);
+        $ressel = mysql_query($qrysel) or die(mysql_error()." sql003b:".$qrysel);
+        $linsel=mysql_fetch_array($ressel);
         $wertid=$linsel[$filterarray[$fltcnt-1][seldbfield]];
       }
       if ($wertid<>"(ohne)") {
@@ -590,13 +597,15 @@ if (is_array($filterarray)) {
         }
         $fquery = "SELECT * FROM ".$dbtable.$selwhere.$selorder;
         //echo $fquery."=fquery<br>";
-        $fresult = mysql_query($fquery) or die(mysql_error()." sql004b:".$fquery);
+        //$fresult = mysql_query($fquery) or die(mysql_error()." sql004b:".$fquery);
+        $fresult = db_query($fquery," sql004b:".$fquery);
         //$fresult=-1;
         echo $arrelement['label']." ";
         echo "<select name='".$arrelement['name']."' size='1'>";
         echo "<option style='background-color:#c0c0c0;' value='(ohne)' >(ohne)</option>";
         //echo "<option style='background-color:#c0c0c0;' value='(leer)' >(leer)</option>";
-        while ($fline = mysql_fetch_array($fresult)) {
+        //while ($fline = mysql_fetch_array($fresult)) {
+        while ($fline = db_fetch($fresult)) {
           $strindex = $fline[$arrelement['seldbindex']];
           $strbez = $fline[$arrelement['seldbfield']];
           if ($arrelement['value'] == $strindex) {
@@ -696,8 +705,10 @@ if ($drucken=="N") {
   }  
   $qryfunc = "SELECT * FROM tblfunc WHERE fldTyp='MENUALL' AND fldAktiv='J'";
   //echo $qryfunc."=qryfunc,idwert=".$idwert."<br>";
-  $resfunc = mysql_query($qryfunc) or die(mysql_error()." sql006:".$qryfunc);
-  while ($linfunc = mysql_fetch_array($resfunc)) { 
+  //$resfunc = mysql_query($qryfunc) or die(mysql_error()." sql006:".$qryfunc);
+  $resfunc = db_query($qryfunc," sql006:".$qryfunc);
+  //while ($linfunc = mysql_fetch_array($resfunc)) { 
+  while ($linfunc = db_fetch($resfunc)) { 
     $bez=$linfunc['fldBez'];
     $name=$linfunc['fldName'];
     $bez=translate($name,$bez,$langshort);
@@ -881,7 +892,8 @@ if ($computerid>0) {
 }  
 $query = "SELECT * FROM ".$query;
 //echo $query."=query<br>";
-$result = mysql_query($query) or die(mysql_error()." sql010:".$query);
+//$result = mysql_query($query) or die(mysql_error()." sql010:".$query);
+$result = db_query($query," sql010:".$query);
 //$nr=0;
 $sum=0;
 $diffsum=0;
@@ -897,7 +909,8 @@ $dbselarr=array();
   //$qrycomp="SELECT * FROM tblcomputer";
   //$rescomp = mysql_query($qrycomp) or die(mysql_error());
   //echo "Anzahl-3:".mysql_num_rows ( $rescomp )."<br>"; 
-while ($line = mysql_fetch_array($result)) { 
+//while ($line = mysql_fetch_array($result)) { 
+while ($line = db_fetch($result)) { 
   $nr=$nr+1;
   $count=$count+1;
 //echo $count."=count<br>";
@@ -906,9 +919,17 @@ while ($line = mysql_fetch_array($result)) {
     switch ( $pararray['marktype'] )
     {
       case 'date':
-        $Datum = $line[$pararray['markfield']];        $tag = substr($Datum,8,2);        $monat = substr($Datum,5,2);        $jahr = substr($Datum,0,4);        $Datum = $tag.".".$monat.".".$jahr;        $jetzt = mktime(0,0,0,date("m"),date("d"),date("Y"));        $DatVergleich = mktime(0,0,0,$monat,$tag,date("Y"));
-        $bool = false;        if ($jetzt < $DatVergleich) {
-          $bool = true;        }
+        $Datum = $line[$pararray['markfield']];
+        $tag = substr($Datum,8,2);
+        $monat = substr($Datum,5,2);
+        $jahr = substr($Datum,0,4);
+        $Datum = $tag.".".$monat.".".$jahr;
+        $jetzt = mktime(0,0,0,date("m"),date("d"),date("Y"));
+        $DatVergleich = mktime(0,0,0,$monat,$tag,date("Y"));
+        $bool = false;
+        if ($jetzt < $DatVergleich) {
+          $bool = true;
+        }
       break;
       
       case 'zahl':
@@ -923,7 +944,8 @@ while ($line = mysql_fetch_array($result)) {
             $bool = true;
             $pararray['markbgcolor']=$pararray['markerrbgcolor'];
           }
-        }           break;
+        }     
+      break;
         
       default:
         if ($pararray['marksign']=="=") {
@@ -1153,7 +1175,8 @@ while ($line = mysql_fetch_array($result)) {
         $wert=strval($line[$arrelement['calcfield']]);
         $index=$line[$arrelement['dbindex']];
         $fquery="SELECT * FROM ".$arrelement['calctable']." WHERE ".$arrelement['calcindex']."=".$index;
-        $fresult = mysql_query($fquery) or die(mysql_error().$fquery);        $fline = mysql_fetch_array($fresult);
+        $fresult = mysql_query($fquery) or die(mysql_error().$fquery);
+        $fline = mysql_fetch_array($fresult);
         $wert=$wert * strval($fline[$arrelement['calcfaktor']]);
         if ($arrelement['calcmultfield']!="") {
           $wert=$wert * strval($line[$arrelement['calcmultfield']]);
@@ -1191,7 +1214,8 @@ while ($line = mysql_fetch_array($result)) {
         if ($arrelement['ifemptyselectid']!="") {
           if ($wert=="") {
             $fquery = "SELECT * FROM ".$arrelement['dbtable']." WHERE ".$arrelement['seldbindex']."=".$line[$arrelement['ifemptyselectid']];
-            $fresult = mysql_query($fquery) or die(mysql_error().$fquery);            $fline = mysql_fetch_array($fresult);
+            $fresult = mysql_query($fquery) or die(mysql_error().$fquery);
+            $fline = mysql_fetch_array($fresult);
             $wert=$fline[$arrelement['seldbfield']];       
             if ($arrelement['seldblink']!="") {
               $linkfield=$arrelement['seldblink'];
@@ -1249,7 +1273,8 @@ while ($line = mysql_fetch_array($result)) {
         if ($line[$pararray['fldindex']]<>"") {
           $qryds="SELECT count(*) AS anzds FROM tblorte WHERE fldo01typ='MOEBEL' AND fldind_zimmer=".$line[$pararray['fldindex']];
           //echo $qryds."<br>";          
-          $resds = mysql_query($qryds) or die(mysql_error().$qryds);          $linds = mysql_fetch_array($resds);
+          $resds = mysql_query($qryds) or die(mysql_error().$qryds);
+          $linds = mysql_fetch_array($resds);
           $anzds=$linds['anzds'];
         }
         $sum=$sum+$anzds;
@@ -1289,7 +1314,8 @@ while ($line = mysql_fetch_array($result)) {
         echo "<td width='".$arrelement['width']."'>".$wert."</td>";
       break;
       case 'blob':
-          echo "<td><img src='meinbild.php?id=". $line[$pararray['fldindex']] ."' alt='test' /></td>";      break;
+          echo "<td><img src='meinbild.php?id=". $line[$pararray['fldindex']] ."' alt='test' /></td>";
+      break;
       case 'date':
         $Datum = $line[$arrelement['dbfield']];
         $tag = substr($Datum,8,2);
@@ -1380,7 +1406,8 @@ while ($line = mysql_fetch_array($result)) {
           if ($wert=="") {
             $fquery = "SELECT * FROM ".$arrelement['dbtable']." WHERE ".$arrelement['seldbindex']."=".$line[$arrelement['ifemptyselectid']];
             //echo $fquery."<br>";
-            $fresult = mysql_query($fquery) or die(mysql_error().$fquery);            $fline = mysql_fetch_array($fresult);
+            $fresult = mysql_query($fquery) or die(mysql_error().$fquery);
+            $fline = mysql_fetch_array($fresult);
             $wert=$fline[$arrelement['seldbfield']];       
             if ($arrelement['seldblink']!="") {
               $linkfield=$arrelement['seldblink'];

@@ -1,0 +1,3 @@
+Version 1.002:
+- Die App kann jetzt auch mit der Datenbank postgreSQL verwendet werden.
+

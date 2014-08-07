@@ -13,8 +13,10 @@ function deleteask($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$menu
   	$bez="dummy";
   }	 
   $query = "SELECT * FROM ".$pararray['dbtable']." WHERE ".$pararray['fldindex']."=".$idwert;
-  $result = mysql_query($query) or die(mysql_error());
-  $line = mysql_fetch_array($result);
+  //$result = mysql_query($query) or die(mysql_error());
+  $result = db_query($query," delete-error");
+  //$line = mysql_fetch_array($result);
+  $line = db_fetch($result);
   if ($bez=="dummy") {
     echo $line[1]."<br>";
   } else {	
@@ -38,8 +40,9 @@ function deleteexec($pararray,$listarray,$filterarray,$filter,$idwert,$menu) {
   if (isset($_REQUEST['submit'])) { 
     $query = "DELETE FROM ".$pararray['dbtable']." WHERE ".$pararray['fldindex']."=".$idwert;
     //echo $query."<br>";
-    mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
-    mysql_close();
+    //mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+    db_query($query," delete-error");
+    //mysql_close();
     echo "Datensatz wurde gelöscht.<br>";
   } else {
     echo "Der Vorgang wurde abgebrochen.<br>"; 

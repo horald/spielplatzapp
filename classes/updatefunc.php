@@ -3,10 +3,13 @@ header("content-type: text/html; charset=utf-8");
 
 function updateinput($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$menuid,$krit) {
   include("../config.php");
+  include("dbtools.php");
 
   $query = "SELECT * FROM ".$pararray['dbtable']." WHERE ".$pararray['fldindex']."='$idwert'";
-  $result = mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
-  $line = mysql_fetch_array($result);
+  //$result = mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+  $result = db_query($query," Update-Error");
+  //$line = mysql_fetch_array($result);
+  $line = db_fetch($result);
 
   echo "<table><tr><td width='500px'>";
   echo "<form name='eingabe' class='form-horizontal' method='post' action='update.php?update=1&idwert=".$idwert."&menu=".$menu."&menuid=".$menuid."' enctype='multipart/form-data'>";
@@ -129,6 +132,14 @@ function updateinput($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$me
         echo "          </div>";
       break;
       case 'text':
+        echo "          <div class='control-group'>";
+        echo "            <label class='control-label' style='text-align:left' for='input01'>".$arrelement['label']."</label>";
+        echo "            <div class='input'>";
+        echo "              <input type='text' id='input01' name='".$arrelement['name']."' value='".$wert."'>";
+        echo "            </div>";
+        echo "          </div>";
+      break;
+      case 'int':
         echo "          <div class='control-group'>";
         echo "            <label class='control-label' style='text-align:left' for='input01'>".$arrelement['label']."</label>";
         echo "            <div class='input'>";
@@ -522,6 +533,7 @@ function updatecheckconnect1($pararray,$listarray,$filterarray,$filter,$idwert,$
 }
 
 function updatesavedirect($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$dbname) {
+  include("dbtools.php");
 
   if (isset($_REQUEST['submit'])) { 
     $strset="";
@@ -530,7 +542,7 @@ function updatesavedirect($pararray,$listarray,$filterarray,$filter,$idwert,$men
     foreach ( $listarray as $arrelement )
     {
       if ($arrelement['fieldsave']<>'NO') {
-        if (($arrelement['type']=='blob') OR ($arrelement['type']=='zahlid') OR ($arrelement['type']=='pos') OR ($arrelement['type']=='textarea') OR ($arrelement['type']=='blutdruck') OR ($arrelement['type']=='average') OR ($arrelement['type']=='YN') OR ($arrelement['type']=='text') OR ($arrelement['type']=='procent') OR ($arrelement['type']=='calcsum') OR ($arrelement['type']=='blobid') OR ($arrelement['type']=='image') OR ($arrelement['type']=='calctext') OR ($arrelement['type']=='select') OR ($arrelement['type']=='selectid') OR ($arrelement['type']=='zahl') OR ($arrelement['type']=='date') OR ($arrelement['type']=='calc')) {
+        if (($arrelement['type']=='blob') OR ($arrelement['type']=='zahlid') OR ($arrelement['type']=='int') OR ($arrelement['type']=='pos') OR ($arrelement['type']=='textarea') OR ($arrelement['type']=='blutdruck') OR ($arrelement['type']=='average') OR ($arrelement['type']=='YN') OR ($arrelement['type']=='text') OR ($arrelement['type']=='procent') OR ($arrelement['type']=='calcsum') OR ($arrelement['type']=='blobid') OR ($arrelement['type']=='image') OR ($arrelement['type']=='calctext') OR ($arrelement['type']=='select') OR ($arrelement['type']=='selectid') OR ($arrelement['type']=='zahl') OR ($arrelement['type']=='date') OR ($arrelement['type']=='calc')) {
         $name=$arrelement['name'];
         $wert=$_POST[$name];
         
@@ -549,13 +561,20 @@ function updatesavedirect($pararray,$listarray,$filterarray,$filter,$idwert,$men
           $filename = $_FILES['datei']['tmp_name'];
           //echo ">".$filename."<=filename<br>";
           if ($filename!="") {
-            $handle = fopen($filename, "rb");            $wert = addslashes(fread($handle, filesize($filename)));            fclose($handle);          }        
+            $handle = fopen($filename, "rb");
+            $wert = addslashes(fread($handle, filesize($filename)));
+            fclose($handle);
+          }        
         } 
         
         if ($strset=="") {
           $strset=$arrelement['dbfield']."='".$wert."'";
         } else {
-          $strset=$strset.",".$arrelement['dbfield']."='".$wert."'";
+          if ($arrelement['type']=="int") {
+            $strset=$strset.",".$arrelement['dbfield']."=".$wert;
+          } else {
+            $strset=$strset.",".$arrelement['dbfield']."='".$wert."'";
+          }
         }  
         if ($strfld=="") {
           $strfld=$arrelement['dbfield'];
@@ -568,19 +587,22 @@ function updatesavedirect($pararray,$listarray,$filterarray,$filter,$idwert,$men
       }
     }
 
-    $query = "UPDATE ".$pararray['dbtable']." SET ".$strset." WHERE ".$pararray['fldindex']."='$idwert'";
-    //echo $query."<br>";
-    mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+    $query = "UPDATE ".$pararray['dbtable']." SET ".$strset." WHERE ".$pararray['fldindex']."=".$idwert.";";
+    //echo $query."=query<br>";
+    //mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+    db_query($query," Update-Error");
     $resync=$_POST['resync'];
     if ($resync==true) {
       $qrysync="INSERT INTO tbldbsync (flddbname, fldtblname, fldtblindex, fldstatus, flddbsync) VALUES ('".$dbname."','".$pararray['dbtable']."','".$idwert."','INS','NEW')";
       //echo $qrysync."<br>";
-      mysql_query($qrysync) or die("Error using mysql_query($sql): ".mysql_error());    }
+      mysql_query($qrysync) or die("Error using mysql_query($sql): ".mysql_error());
+    }
     $dscopy=$_POST['dscopy'];
     if ($dscopy==true) {
       $qrycopy = "INSERT INTO ".$pararray['dbtable']." (".$strfld.") VALUES(".$strval.") ";
       //echo $qrysync."<br>";
-      mysql_query($qrycopy) or die("Error using mysql_query($qrycopy): ".mysql_error());    }
+      mysql_query($qrycopy) or die("Error using mysql_query($qrycopy): ".mysql_error());
+    }
     echo "Die Daten wurden eingetragen<br>";
   } else {
     echo "Der Vorgang wurde abgebrochen.<br>"; 

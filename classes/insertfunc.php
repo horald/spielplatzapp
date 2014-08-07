@@ -17,7 +17,6 @@ function insertinput($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$id
     if ($arrelement['name']<>"") {
       if ($arrelement['getdefault']=="true") {
         $defquery="SELECT * FROM tblfilter WHERE fldmaske='".strtoupper($menu)."_DEFAULT' AND fldName='".$arrelement['name']."'";
-//echo $defquery."=defquery<br>";        
         $defresult = mysql_query($defquery) or die(mysql_error());
         $defline = mysql_fetch_array($defresult);
         $defwert=$defline['fldwert'];
@@ -207,6 +206,18 @@ function insertinput($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$id
       echo "            </div>";
       echo "          </div>";
     }	
+    if ($arrelement['type']=='int') {
+      echo "          <div class='control-group'>";
+      echo "            <label class='control-label' style='text-align:left' for='input01'>".$arrelement['label']."</label>";
+      echo "            <div class='input'>";
+      if ($arrelement['default']=="") {
+        echo "              <input type='text' id='input01' name='".$arrelement['name']."' value='0'>";
+      } else { 
+        echo "              <input type='text' id='input01' name='".$arrelement['name']."' value='".$arrelement['default']."'>";
+      }
+      echo "            </div>";
+      echo "          </div>";
+    }	
     if ($arrelement['type']=='textarea') {
       echo "          <div class='control-group'>";
       echo "            <label class='control-label' style='text-align:left' for='input01'>".$arrelement['label']."</label>";
@@ -341,13 +352,7 @@ function insertsave($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$idd
       if ($arrelement['fieldsave']<>"NO") {
         $name=$arrelement['name'];
         $wert=$_POST[$name];
-        //if ($arrelement['ifemptyselectid']!="") {
-        //  $fquery = "SELECT * FROM ".$arrelement['dbtable']." WHERE ".$arrelement['seldbindex']."=".$wert;
-        //  $fresult = mysql_query($fquery) or die(mysql_error().$fquery);
-        //  $fline = mysql_fetch_array($fresult);
-        //  $wert=$fline[$arrelement['seldbfield']];       
-        //}
-        if (($arrelement['type']=='YN') OR ($arrelement['type']=='textarea') OR ($arrelement['type']=='pos') OR ($arrelement['type']=='calctext') OR ($arrelement['type']=='anzproz') OR ($arrelement['type']=='text') OR ($arrelement['type']=='average') OR ($arrelement['type']=='blutdruck') OR ($arrelement['type']=='blob') OR ($arrelement['type']=='calc') OR ($arrelement['type']=='date') OR ($arrelement['type']=='zahl') OR ($arrelement['type']=='select') OR ($arrelement['type']=='selectid')) {
+        if (($arrelement['type']=='YN') OR ($arrelement['type']=='textarea') OR ($arrelement['type']=='int') OR ($arrelement['type']=='pos') OR ($arrelement['type']=='calctext') OR ($arrelement['type']=='anzproz') OR ($arrelement['type']=='text') OR ($arrelement['type']=='average') OR ($arrelement['type']=='blutdruck') OR ($arrelement['type']=='blob') OR ($arrelement['type']=='calc') OR ($arrelement['type']=='date') OR ($arrelement['type']=='zahl') OR ($arrelement['type']=='select') OR ($arrelement['type']=='selectid')) {
           if ($arrelement['type']=='pos') {
             if ($wert=="+") {
           	  $dbwhere=$_POST[$arrelement['dbwherename']];
@@ -379,9 +384,9 @@ function insertsave($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$idd
           if ($arrelement['name']<>"") {
             if ($arrelement['getdefault']=="true") {
               $defquery="DELETE FROM tblfilter WHERE fldmaske='".strtoupper($menu)."_DEFAULT' and fldName='".$arrelement['name']."'"; 
-              mysql_query($defquery) or die("Error using mysql_query($sql): ".mysql_error());//              echo $defquery."=menu<br>";
+              mysql_query($defquery) or die("Error using mysql_query($sql): ".mysql_error());
               $defquery="REPLACE INTO tblfilter (fldmaske,fldName,fldwert) VALUES ('".strtoupper($menu)."_DEFAULT','".$arrelement['name']."','".$wert."')";
-              mysql_query($defquery) or die("Error using mysql_query($sql): ".mysql_error());//              echo $defquery."=menu<br>";
+              mysql_query($defquery) or die("Error using mysql_query($sql): ".mysql_error());
             }
           }    
         }
@@ -390,7 +395,9 @@ function insertsave($pararray,$listarray,$filterarray,$filter,$idwert,$menu,$idd
 
     $query = "INSERT INTO ".$pararray['dbtable']." (".$strfld.") VALUES(".$strval.") ";
     //echo $query."<br>";
-    mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+//    mysql_query($query) or die("Error using mysql_query($sql): ".mysql_error());
+    db_query($query," Insert-Error");
+echo $lstinsid."=lstinsid<br>";
     if ($lstinsid<>0) {
       $insid=mysql_insert_id();
       $qryupd = "UPDATE tbladr_lstgrp SET fldid_liste=".$insid." WHERE fldindex=".$lstinsid;      	

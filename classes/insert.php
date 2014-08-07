@@ -3,6 +3,7 @@ $menu=$_GET[menu];
 $menuid=$_GET[menuid];
 $idwert=$_GET['idwert'];
 include("../config.php");
+include("dbtools.php");
 include("insertfunc.php");
 include("bootstrapfunc.php");
 include("../sites/views/wp_".$menu."/showtab.inc.php");

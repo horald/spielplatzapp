@@ -1,8 +1,8 @@
 <?php
-include("config.php");
+//include("config.php");
 
 function startinstall() {
-  echo "<form name='eingabe' method='post' action='install.php'>";
+  echo "<form name='eingabe' method='post' action='installation/install.php'>";
   echo "<table>";
   echo "<tr><td><h2>Installation</h2></td></tr>";
   echo "<tr>";
@@ -22,6 +22,8 @@ function startinstall() {
 function startmenu() {
 
   include("config.php");
+//  include("dbtools.php"); 
+//  db_connect();
   echo "<legend>Spielplatzapp</legend>";
 
   echo "<table>";
@@ -30,9 +32,13 @@ function startmenu() {
   echo "<ul class='nav nav-pills nav-stacked'>";
   echo "  <li><a href='classes/welcome.php' target='Fensterlein'>Home</a></li>";
   echo "  <li><a href='classes/showtab.php?menu=playground' target='Fensterlein'>Spielpl&aumltze</a></li>";
-  echo "  <li><a href='classes/showtab.php?menu=spielgeraet' target='Fensterlein'>Spielger&aumlte</a></li>";
+  if ($gdbtyp=="mysql") {
+    echo "  <li><a href='classes/showtab.php?menu=spielgeraet' target='Fensterlein'>Spielger&aumlte</a></li>";
+  }
   echo "  <li><a href='classes/spielplatzmap.php' target='Fensterlein'>Spielplatzmap</a></li>";
-  echo "  <li><a href='classes/getposition.php' target='Fensterlein'>Hole Position</a></li>";
+  if ($gdbtyp=="mysql") {
+    echo "  <li><a href='classes/getposition.php' target='Fensterlein'>Hole Position</a></li>";
+  }
   echo "</ul>";
 
   echo "</td>";
@@ -70,7 +76,7 @@ function showfoot() {
 
 function startseite() {
 
-  include("config.php");
+//  include("config.php");
   $dbFile="config.php";
   if (filesize($dbFile) == 0 ) {
     startinstall(); 
